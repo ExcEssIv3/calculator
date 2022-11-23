@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 
-import models from './models/index.js';
+import models, { sequelize } from './models/index.js';
 import routes from './routes/index.js';
 
 const app = express();
@@ -27,7 +27,12 @@ app.get('/', (req, res) => {
 app.use('/session', routes.session);
 app.use('/users', routes.user);
 app.use('/category', routes.category);
-
-app.listen(process.env.PORT, () => {
-    console.log(`Listening on port ${process.env.PORT}!`);
-});
+try {
+    sequelize.sync().then(() => {
+        app.listen(process.env.PORT, () => {
+            console.log(`Listening on port ${process.env.PORT}!`);
+        });
+    });
+} catch (exception) {
+    console.error(exception);
+}

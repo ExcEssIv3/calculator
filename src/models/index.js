@@ -1,41 +1,33 @@
-let users = {
-    1: {
-        id: '1',
-        username: 'TestUser'
+import 'dotenv/config';
+import { Sequelize } from "sequelize";
+
+import getUserModel from "./user.js";
+import getCategoryModel from "./category.js";
+
+const sequelize = new Sequelize({
+    // process.env.DATABASE,
+    // process.env.DATABASE_USER,
+    // process.env.DATABASE_PASSWORD,
+        database: 'capstone',
+        username: 'postgres',
+        password: 'admin',
+        host: 'localhost',
+        port: 5432,
+        dialect: 'postgres',
     }
+);
+
+const models = {
+    User: getUserModel(sequelize, Sequelize),
+    Category: getCategoryModel(sequelize, Sequelize),
 };
 
-let categories = {
-    1: {
-        id: '1',
-        name: 'transportation',
-        contributors: [
-            {
-                id: '1',
-                name: 'truck',
-                carbonOutput: 8
-            }
-        ]
-    },
-    2: {
-        id: '2',
-        name: 'utilities',
-        contributors: [
-            {
-                id: '1',
-                name: 'electricity',
-                carbonOutput: 50
-            },
-            {
-                id: '2',
-                name: 'water',
-                carbonOutput: 20
-            }
-        ]
+Object.keys(models).forEach((key) => {
+    if ('associate' in models[key]) {
+        models[key].associate(models);
     }
-};
+});
 
-export default {
-    users,
-    categories,
-}
+export { sequelize };
+
+export default models;
