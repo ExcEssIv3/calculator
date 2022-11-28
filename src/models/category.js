@@ -9,7 +9,7 @@ const getCategoryModel = (sequelize, { DataTypes }) => {
             },
         },
         scope: {
-            type: DataTypes.NUMBER,
+            type: DataTypes.INTEGER,
             allowNull: false,
             validate: {
                 isInt: true,
@@ -17,8 +17,8 @@ const getCategoryModel = (sequelize, { DataTypes }) => {
                 max: 3,
             },
         },
-        direction: {
-            type: DataTypes.NUMBER,
+        direction: { // 1: upstream, 2: reporting, 3: downstream
+            type: DataTypes.INTEGER,
             allowNull: false,
             validate: {
                 isInt: true,
@@ -26,7 +26,7 @@ const getCategoryModel = (sequelize, { DataTypes }) => {
                 max: 3,
             },
         },
-        type: {
+        type: { // 0: direct, 1: indirect
             type: DataTypes.BOOLEAN,
             allowNull: false,
         },
