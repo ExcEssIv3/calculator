@@ -17,6 +17,7 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:categoryId', async (req, res) => {
+    console.log('GET');
     const categories = await req.context.models.Category.findOne({
         where: {
             [Op.and]: [
@@ -33,6 +34,23 @@ router.get('/:categoryId', async (req, res) => {
         }
     });
     return res.send(categories);
+});
+
+router.get('/:categoryId/totalOutput', async (req, res) => {
+    if (req.params.categoryId === 'null') {
+        return res.send({ total: 0 });
+    } else {
+        const sum = await req.context.models.Contributor.sum('carbonProduction', {
+            where: {
+                [Op.and]: [
+                    { userId: req.context.me.id },
+                    { categoryId: req.params.categoryId }
+                ]
+            }
+        });
+
+        return res.send({ total: (sum === null) ? 0 : sum });
+    }
 });
 
 router.get('/:categoryId/contributor/', async (req, res) => {
@@ -124,6 +142,10 @@ router.post('/contributor', async (req, res) => {
 
     return res.send(contributor);
 });
+
+// router.put('/contributor/:contributorId/totalOutput/:totalOutput', async (req, res) => {
+    
+// })
 
 router.delete('/contributor/:contributorId', async (req, res) => {
     const toDelete = await req.context.models.Contributor.findByPk(req.params.contributorId);

@@ -18,16 +18,11 @@ const getCategoryModel = (sequelize, { DataTypes }) => {
             },
         },
         direction: { // 1: upstream, 2: reporting, 3: downstream
-            type: DataTypes.INTEGER,
+            type: DataTypes.ENUM('Upstream', 'Reporting', 'Downstream'),
             allowNull: false,
-            validate: {
-                isInt: true,
-                min: 1,
-                max: 3,
-            },
         },
         type: { // 0: direct, 1: indirect
-            type: DataTypes.BOOLEAN,
+            type: DataTypes.ENUM('Direct', 'Indirect'),
             allowNull: false,
         },
         

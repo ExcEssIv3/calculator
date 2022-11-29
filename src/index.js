@@ -47,32 +47,32 @@ const seedDb = async () => {
                 {
                     name: 'utilities',
                     scope: 2,
-                    direction: 1,
-                    type: 1,
+                    direction: 'Upstream',
+                    type: 'Indirect',
                 },
                 {
                     name: 'company vehicles',
                     scope: 1,
-                    direction: 2,
-                    type: 0,
+                    direction: 'Reporting',
+                    type: 'Direct',
                 },
                 {
                     name: 'company facilities',
                     scope: 1,
-                    direction: 2,
-                    type: 0,
+                    direction: 'Reporting',
+                    type: 'Direct',
                 },
                 {
                     name: 'transportation and distribution',
                     scope: 3,
-                    direction: 3,
-                    type: 1,
+                    direction: 'Downstream',
+                    type: 'Indirect',
                 },
                 {
                     name: 'employee commute',
                     scope: 3,
-                    direction: 3,
-                    type: 1,
+                    direction: 'Downstream',
+                    type: 'Indirect',
                 }
             ]
         },
@@ -115,8 +115,8 @@ const seedDb = async () => {
                 {
                     name: 'hiddencategory',
                     scope: 1,
-                    direction: 1,
-                    type: 1,
+                    direction: 'Upstream',
+                    type: 'Indirect',
                 }
             ]
         },
