@@ -16,6 +16,7 @@ const getContributorModel = (sequelize, { DataTypes }) => {
 
     Contributor.associate = (models) => {
         Contributor.belongsTo(models.Category);
+        Contributor.belongsTo(models.User);
     };
 
     return Contributor;
