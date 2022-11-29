@@ -68,7 +68,7 @@ router.get('/:categoryId/contributor/', async (req, res) => {
 });
 
 router.get('/scope/:scopeId', async (req, res) => {
-    const categories = await req.context.models.Category.findOne({
+    const categories = await req.context.models.Category.findAll({
         where: {
             [Op.and]: [
                 {
@@ -117,7 +117,7 @@ router.delete('/:categoryId', async (req, res) => {
 router.post('/contributor', async (req, res) => {
     const contributor = await req.context.models.Contributor.create({
         name: req.body.name,
-        carbonProduction: req.body.bodyProduction,
+        carbonProduction: req.body.carbonProduction,
         categoryId: req.body.categoryId,
         userId: req.context.me.id,
     });

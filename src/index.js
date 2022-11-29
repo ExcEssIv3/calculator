@@ -27,7 +27,7 @@ app.get('/', (req, res) => {
     return res.send('Hello world!');
 });
 
-app.use('/session', routes.session);
+// app.use('/session', routes.session);
 app.use('/user', routes.user);
 app.use('/category', routes.category);
 sequelize.sync({ force: eraseDatabaseOnSync }).then(() => {
@@ -57,7 +57,19 @@ const seedDb = async () => {
                     type: 0,
                 },
                 {
+                    name: 'company facilities',
+                    scope: 1,
+                    direction: 2,
+                    type: 0,
+                },
+                {
                     name: 'transportation and distribution',
+                    scope: 3,
+                    direction: 3,
+                    type: 1,
+                },
+                {
+                    name: 'employee commute',
                     scope: 3,
                     direction: 3,
                     type: 1,
