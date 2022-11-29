@@ -6,7 +6,7 @@ import models, { sequelize } from './models/index.js';
 import routes from './routes/index.js';
 
 const app = express();
-const eraseDatabaseOnSync = false;
+const eraseDatabaseOnSync = true;
 
 app.use(cors());
 
@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/session', routes.session);
-app.use('/users', routes.user);
+app.use('/user', routes.user);
 app.use('/category', routes.category);
 sequelize.sync({ force: eraseDatabaseOnSync }).then(() => {
     if (eraseDatabaseOnSync) {
@@ -40,7 +40,7 @@ sequelize.sync({ force: eraseDatabaseOnSync }).then(() => {
 const seedDb = async () => {
     await models.User.create(
         {
-            username: 'adminUser',
+            username: 'admin',
             categories: [
                 {
                     name: 'utilities',

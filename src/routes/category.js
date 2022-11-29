@@ -1,14 +1,38 @@
 import { v4 as uuidv4 } from 'uuid';
+import { Op } from 'sequelize';
 import { Router } from 'express';
 
 const router = Router();
 
-router.get('/', (req, res) => {
-    return res.send(Object.values(req.context.models.categories));
+router.get('/', async (req, res) => {
+    const categories = await req.context.models.Category.findAll({
+        where: {
+            [Op.or]: [
+                { userId: 1 },
+                { userId: req.context.me.id }
+            ],
+        },
+    });
+    return res.send(categories);
 });
 
-router.get('/:categoryId', (req, res) => {
-    return res.send(req.context.models.categories[req.params.categoryId]);
+router.get('/:categoryId', async (req, res) => {
+    const categories = await req.context.models.Category.findOne({
+        where: {
+            [Op.and]: [
+                {
+                    [Op.or]: [
+                        { userId: 1 },
+                        { userId: req.context.me.id }
+                    ],
+                },
+                {
+                    id: req.params.categoryId,
+                },
+            ]
+        }
+    });
+    return res.send(categories);
 });
 
 router.get('/:categoryId/contributor/:contributorId', (req, res) => {
