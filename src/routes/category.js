@@ -4,7 +4,7 @@ import { Router } from 'express';
 
 const router = Router();
 
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
     const categories = await req.context.models.Category.findAll({
         where: {
             [Op.or]: [
@@ -12,11 +12,11 @@ router.get('/', async (req, res) => {
                 { userId: req.context.me.id }
             ],
         },
-    });
+    }).catch(next);
     return res.send(categories);
 });
 
-router.get('/:categoryId', async (req, res) => {
+router.get('/:categoryId', async (req, res, next) => {
     console.log('GET');
     const categories = await req.context.models.Category.findOne({
         where: {
@@ -32,11 +32,11 @@ router.get('/:categoryId', async (req, res) => {
                 },
             ]
         }
-    });
+    }).catch(next);
     return res.send(categories);
 });
 
-router.get('/:categoryId/totalOutput', async (req, res) => {
+router.get('/:categoryId/totalOutput', async (req, res, next) => {
     if (req.params.categoryId === 'null') {
         return res.send({ total: 0 });
     } else {
@@ -47,13 +47,13 @@ router.get('/:categoryId/totalOutput', async (req, res) => {
                     { categoryId: req.params.categoryId }
                 ]
             }
-        });
+        }).catch(next);
 
         return res.send({ total: (sum === null) ? 0 : sum });
     }
 });
 
-router.get('/:categoryId/contributor/', async (req, res) => {
+router.get('/:categoryId/contributor/', async (req, res, next) => {
 
     // checks if category exists and is accessible, if not return null
     if (!await req.context.models.Category.findOne({where: {
@@ -68,7 +68,7 @@ router.get('/:categoryId/contributor/', async (req, res) => {
                 id: req.params.categoryId,
             },
         ]
-    }})) {
+    }}).catch(next)) {
         return res.send(null);
     }
 
@@ -80,12 +80,12 @@ router.get('/:categoryId/contributor/', async (req, res) => {
                 { userId: req.context.me.id },
             ]
         }
-    });
+    }).catch(next);
 
     return res.send(contributors);
 });
 
-router.get('/scope/:scopeId', async (req, res) => {
+router.get('/scope/:scopeId', async (req, res, next) => {
     const categories = await req.context.models.Category.findAll({
         where: {
             [Op.and]: [
@@ -100,30 +100,30 @@ router.get('/scope/:scopeId', async (req, res) => {
                 },
             ]
         }
-    });
+    }).catch(next);
     return res.send(categories);
 });
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
     const category = await req.context.models.Category.create({
         name: req.body.name,
         scope: req.body.scope,
         direction: req.body.direction,
         type: req.body.type,
         userId: req.context.me.id,
-    });
+    }).catch(next);
 
     return res.send(category);
 });
 
-router.delete('/:categoryId', async (req, res) => {
-    const toDelete = await req.context.models.Category.findByPk(req.params.categoryId);
+router.delete('/:categoryId', async (req, res, next) => {
+    const toDelete = await req.context.models.Category.findByPk(req.params.categoryId).catch(next);
 
     // check if category belongs to user sending delete request, delete if it does
     if (toDelete.dataValues.userId === req.context.me.id) {
         const result = await req.context.models.Category.destroy({
             where: { id: req.params.categoryId },
-        });
+        }).catch(next);
 
         return res.send(true);
     }
@@ -132,29 +132,29 @@ router.delete('/:categoryId', async (req, res) => {
     return res.send(401, 'Category not authorized');
 });
 
-router.post('/contributor', async (req, res) => {
+router.post('/contributor', async (req, res, next) => {
     const contributor = await req.context.models.Contributor.create({
         name: req.body.name,
         carbonProduction: req.body.carbonProduction,
         categoryId: req.body.categoryId,
         userId: req.context.me.id,
-    });
+    }).catch(next);
 
     return res.send(contributor);
 });
 
-// router.put('/contributor/:contributorId/totalOutput/:totalOutput', async (req, res) => {
+// router.put('/contributor/:contributorId/totalOutput/:totalOutput', async (req, res, next) => {
     
 // })
 
-router.delete('/contributor/:contributorId', async (req, res) => {
-    const toDelete = await req.context.models.Contributor.findByPk(req.params.contributorId);
+router.delete('/contributor/:contributorId', async (req, res, next) => {
+    const toDelete = await req.context.models.Contributor.findByPk(req.params.contributorId).catch(next);
 
     // check if contributor belongs to user sending delete request, delete if it does
     if (toDelete.dataValues.userId === req.context.me.id) {
         const result = await req.context.models.Contributor.destroy({
             where: { id: req.params.categoryId },
-        });
+        }).catch(next);
 
         return res.send(true);
     }
