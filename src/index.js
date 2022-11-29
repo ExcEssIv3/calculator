@@ -23,6 +23,7 @@ app.use(async (req, res, next) => { // pseudo authentication middleware, would b
     next();
 });
 
+
 app.get('/', (req, res) => {
     return res.send('Hello world!');
 });
@@ -30,6 +31,11 @@ app.get('/', (req, res) => {
 // app.use('/session', routes.session);
 app.use('/user', routes.user);
 app.use('/category', routes.category);
+
+app.use((error, req, res, next) => {
+    return res.status(500).json({ error: error.toString() });
+});
+
 sequelize.sync({ force: eraseDatabaseOnSync }).then(() => {
     if (eraseDatabaseOnSync) {
         seedDb();
