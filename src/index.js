@@ -36,6 +36,14 @@ app.use((error, req, res, next) => {
     return res.status(500).json({ error: error.toString() });
 });
 
+app.get('/totalOutput', async (req, res, next) => {
+    const sum = await models.Contributor.sum('carbonProduction', {
+        where: { userId: req.context.me.id }
+    }).catch(next);
+
+    return res.send({ total: (sum === null) ? 0 : sum });
+});
+
 sequelize.sync({ force: eraseDatabaseOnSync }).then(() => {
     if (eraseDatabaseOnSync) {
         seedDb();
