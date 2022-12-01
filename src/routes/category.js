@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { Op } from 'sequelize';
 import { Router } from 'express';
 

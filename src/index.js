@@ -5,20 +5,33 @@ import cors from 'cors';
 import models, { sequelize } from './models/index.js';
 import routes from './routes/index.js';
 
+// const path = require('path');
+// const session = require('express-session');
+import path from 'path';
+import session from 'express-session';
+
 const app = express();
 const eraseDatabaseOnSync = true;
 
-const username = 'admin';
+const login = 'admin';
 
 app.use(cors());
+
+app.use(session({
+    secret: process.env.SESSION,
+    resave: true,
+    saveUninitialized: true
+}))
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// app.use(express.static(path.join(__dirname, 'static')));
+
 app.use(async (req, res, next) => { // pseudo authentication middleware, would be cool to not be pseudo eventually
     req.context = {
         models,
-        me: await models.User.findOne({ where: {username: username} }),
+        me: await models.User.findByLogin(login),
     };
     next();
 });
@@ -31,6 +44,7 @@ app.get('/', (req, res) => {
 // app.use('/session', routes.session);
 app.use('/user', routes.user);
 app.use('/category', routes.category);
+app.use('/auth', routes.auth);
 
 app.use((error, req, res, next) => {
     return res.status(500).json({ error: error.toString() });
@@ -57,6 +71,8 @@ const seedDb = async () => {
     await models.User.create(
         {
             username: 'admin',
+            email: 'admin@url.com',
+            hash: 'password',
             categories: [
                 {
                     name: 'utilities',
@@ -125,6 +141,8 @@ const seedDb = async () => {
     await models.User.create(
         {
             username: 'hidden',
+            email: 'hidden@url.com',
+            hash: 'password',
             categories: [
                 {
                     name: 'hiddencategory',

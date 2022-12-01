@@ -10,12 +10,12 @@ router.get('/', async (req, res) => {
     return res.send(user);
 });
 
-router.get('/:userId', async (req, res) => {
-    const user = await req.context.models.User.findByPk(
-        req.params.userId,
-    );
+// router.get('/:userId', async (req, res) => {
+//     const user = await req.context.models.User.findByPk(
+//         req.params.userId,
+//     );
 
-    return res.send(user);
-});
+//     return res.send(user);
+// });
 
 export default router;
