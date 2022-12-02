@@ -31,23 +31,57 @@ router.get('/:categoryId', async (req, res, next) => {
             ]
         }
     }).catch(next);
-    return res.send(categories);
+
+    if (categories) {
+        return res.send(categories);
+    }
+
+    res.status(404); // if category isn't found, return 404; also returns 404 if category exists but not authorized
+    res.send(`Category with id: ${req.params.categoryId} not found`);
 });
 
 router.get('/:categoryId/totalOutput', async (req, res, next) => {
-    if (req.params.categoryId === 'null') {
-        return res.send({ total: 0 });
+    const categories = await req.context.models.Category.findOne({
+        where: {
+            [Op.and]: [
+                {
+                    [Op.or]: [
+                        { userId: 1 },
+                        { userId: req.context.me.id }
+                    ],
+                },
+                {
+                    id: req.params.categoryId,
+                },
+            ]
+        }
+    }).catch(next);
+
+    if (!categories) {
+        res.status(404); // if category isn't found, return 404; also returns 404 if category exists but not authorized
+        return res.send(`Category with id: ${req.params.categoryId} not found`);
     } else {
-        const sum = await req.context.models.Contributor.sum('carbonProduction', {
+        if (!(await req.context.models.Contributor.findOne({ // checks if any contributors exist, if sum() finds nothing on where, it returns null
             where: {
                 [Op.and]: [
                     { userId: req.context.me.id },
                     { categoryId: req.params.categoryId }
                 ]
             }
-        }).catch(next);
+        }).catch(next))) {
+            return res.send({ total: 0 });
+        } else {
+            const sum = await req.context.models.Contributor.sum('carbonProduction', {
+                where: {
+                    [Op.and]: [
+                        { userId: req.context.me.id },
+                        { categoryId: req.params.categoryId }
+                    ]
+                }
+            }).catch(next);
 
-        return res.send({ total: (sum === null) ? 0 : sum });
+            return res.send({ total: sum });
+        }
     }
 });
 
@@ -67,7 +101,8 @@ router.get('/:categoryId/contributor/', async (req, res, next) => {
             },
         ]
     }}).catch(next)) {
-        return res.send(null);
+        res.status(404);
+        return res.send(`Category with id: ${req.params.categoryId} not found`);
     }
 
     // gets all contributors in the category
@@ -117,17 +152,17 @@ router.post('/', async (req, res, next) => {
 router.delete('/:categoryId', async (req, res, next) => {
     const toDelete = await req.context.models.Category.findByPk(req.params.categoryId).catch(next);
 
-    // check if category belongs to user sending delete request, delete if it does
-    if (toDelete.dataValues.userId === req.context.me.id) {
+    // check if category exists and belongs to user sending delete request, delete if it does
+    if (toDelete && toDelete.dataValues.userId === req.context.me.id) {
         const result = await req.context.models.Category.destroy({
             where: { id: req.params.categoryId },
         }).catch(next);
 
-        return res.send(true);
+        return res.send(`Category ${req.params.categoryId} deleted`);
     }
     
-    // return 401 error if invalid category
-    return res.send(401, 'Category not authorized');
+    res.status(404);
+    return res.send(`Category with id: ${req.params.categoryId} not found`);    
 });
 
 router.post('/contributor', async (req, res, next) => {
@@ -144,17 +179,17 @@ router.post('/contributor', async (req, res, next) => {
 router.delete('/contributor/:contributorId', async (req, res, next) => {
     const toDelete = await req.context.models.Contributor.findByPk(req.params.contributorId).catch(next);
 
-    // check if contributor belongs to user sending delete request, delete if it does
-    if (toDelete.dataValues.userId === req.context.me.id) {
+    // check if contributor exists and belongs to user sending delete request, delete if it does
+    if (toDelete && toDelete.dataValues.userId === req.context.me.id) {
         const result = await req.context.models.Contributor.destroy({
-            where: { id: req.params.categoryId },
+            where: { id: req.params.contributorId },
         }).catch(next);
 
-        return res.send(true);
+        return res.send(`Contributor ${req.params.contributorId} deleted`);
     }
     
-    // return 401 error if invalid contributor
-    return res.send(401, 'Contributor not authorized');
+    res.status(404);
+    return res.send(`Contributor with id: ${req.params.contributorId} not found`);   
 });
 
 
