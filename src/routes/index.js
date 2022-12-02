@@ -1,9 +1,11 @@
-// import session from './session.js';
+import auth from './auth.js';
 import user from './user.js';
 import category from './category.js';
+import session from './session.js';
 
 export default {
-    // session,
     user,
     category,
+    auth,
+    session,
 };
