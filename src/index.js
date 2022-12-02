@@ -10,9 +10,6 @@ import session from 'express-session';
 const app = express();
 const eraseDatabaseOnSync = true;
 
-const production = true; // turn to true to require login cookie
-
-
 app.use(cors());
 
 app.use(session({
@@ -56,7 +53,7 @@ app.use(async (req, res, next) => { // authentication middleware
             res.status(401);
             res.send('Authentication failed, user does not exist');
         }
-    } else if (!production) { // if not in production, and user isn't defined, mock user as admin
+    } else if (process.env.PRODUCTION !== 'true') { // if not in production, and user isn't defined, mock user as admin
         req.context.me = await models.User.findByLogin('admin');
         next();
     } else { // no session token or username not in session token
