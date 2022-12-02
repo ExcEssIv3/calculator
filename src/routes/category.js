@@ -36,7 +36,8 @@ router.get('/:categoryId', async (req, res, next) => {
         return res.send(categories);
     }
 
-    res.status(404); // if category isn't found, return 404; also returns 404 if category exists but not authorized
+    // if category isn't found, return 404; also returns 404 if category exists but not authorized
+    res.status(404);
     res.send(`Category with id: ${req.params.categoryId} not found`);
 });
 
@@ -57,11 +58,14 @@ router.get('/:categoryId/totalOutput', async (req, res, next) => {
         }
     }).catch(next);
 
+    // if category isn't found, return 404; also returns 404 if category exists but not authorized
     if (!categories) {
-        res.status(404); // if category isn't found, return 404; also returns 404 if category exists but not authorized
+        res.status(404);
         return res.send(`Category with id: ${req.params.categoryId} not found`);
     } else {
-        if (!(await req.context.models.Contributor.findOne({ // checks if any contributors exist, if sum() finds nothing on where, it returns null
+
+        // checks if any contributors exist, if sum() finds nothing on where, it returns null
+        if (!(await req.context.models.Contributor.findOne({
             where: {
                 [Op.and]: [
                     { userId: req.context.me.id },
@@ -87,7 +91,7 @@ router.get('/:categoryId/totalOutput', async (req, res, next) => {
 
 router.get('/:categoryId/contributor/', async (req, res, next) => {
 
-    // checks if category exists and is accessible, if not return null
+    // checks if category exists and is accessible, if not return 404
     if (!await req.context.models.Category.findOne({where: {
         [Op.and]: [
             {

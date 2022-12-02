@@ -27,44 +27,53 @@ app.use(session({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(async (req, res, next) => { // authentication middleware
-    const unauthenticatedRoutes = [ // routes that don't require authentication
+// authentication middleware
+app.use(async (req, res, next) => {
+    // routes that don't require authentication
+    const unauthenticatedRoutes = [
         '/auth/login/',
         '/session/',
         '/user/'
     ];
 
-    req.context = { // baseline context object, pretty much everything needs the models
+    // baseline context object, pretty much everything needs the models
+    req.context = {
         models
     };
 
-    
-    if (unauthenticatedRoutes.find((route) => { // allow unauthenticated paths
-        if (req.path.endsWith('/')) return route === req.path; // function allows inclusion or not inclusion of '/' at end of a route
+    // allow unauthenticated paths
+    if (unauthenticatedRoutes.find((route) => {
+        // function allows inclusion or not inclusion of '/' at end of a route
+        if (req.path.endsWith('/')) return route === req.path;
         return route === req.path + '/';
     })) {
         next();
-    } else if (req.session.username) { // check if username tag exists in session
+
+    // check if username tag exists in session
+    } else if (req.session.username) {
         const user = await models.User.findByLogin(req.session.username);
-        if (user) { // check if user is in db
+
+        // check if user is in db
+        if (user) {
             req.context.me = user;
             next();
-        } else { // user not found in db
+
+        // user not found in db
+        } else {
             res.status(401);
             res.send('Authentication failed, user does not exist');
         }
-    } else if (process.env.PRODUCTION !== 'true') { // if not in production, and user isn't defined, mock user as admin
+
+    // if not in production, and user isn't defined, mock user as admin
+    } else if (process.env.PRODUCTION !== 'true') {
         req.context.me = await models.User.findByLogin('admin');
         next();
-    } else { // no session token or username not in session token
+
+    // no session token or username not in session token
+    } else {
         res.status(401);
         res.send('Access denied: not authenticated')        
     }
-});
-
-
-app.get('/', (req, res) => {
-    return res.send('Hello world!');
 });
 
 app.use('/user', routes.user);
