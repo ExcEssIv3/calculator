@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 const router = Router();
 
-router.post('/', async (req, res) => {
+router.post('/login', async (req, res) => {
     let username = req.body.username;
     let password = req.body.password;
 
@@ -28,5 +28,10 @@ router.post('/', async (req, res) => {
     res.status(400)
     return res.send('Username or password field is empty');
 });
+
+router.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.send('Logged out');
+})
 
 export default router;

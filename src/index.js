@@ -5,35 +5,64 @@ import cors from 'cors';
 import models, { sequelize } from './models/index.js';
 import routes from './routes/index.js';
 
-// const path = require('path');
-// const session = require('express-session');
-import path from 'path';
 import session from 'express-session';
 
 const app = express();
 const eraseDatabaseOnSync = true;
 
-const login = 'admin';
+const production = true; // turn to true to require login cookie
+
 
 app.use(cors());
 
 app.use(session({
     secret: process.env.SESSION,
-    resave: true,
-    saveUninitialized: true
-}))
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        maxAge: 86400000, // one day in milliseconds
+        // secure: true,
+
+    },
+
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// app.use(express.static(path.join(__dirname, 'static')));
+app.use(async (req, res, next) => { // authentication middleware
+    const unauthenticatedRoutes = [ // routes that don't require authentication
+        '/auth/login/',
+        '/session/',
+        '/user/'
+    ];
 
-app.use(async (req, res, next) => { // pseudo authentication middleware, would be cool to not be pseudo eventually
-    req.context = {
-        models,
-        me: await models.User.findByLogin(login),
+    req.context = { // baseline context object, pretty much everything needs the models
+        models
     };
-    next();
+
+    
+    if (unauthenticatedRoutes.find((route) => { // allow unauthenticated paths
+        if (req.path.endsWith('/')) return route === req.path; // function allows inclusion or not inclusion of '/' at end of a route
+        return route === req.path + '/';
+    })) {
+        next();
+    } else if (req.session.username) { // check if username tag exists in session
+        const user = await models.User.findByLogin(req.session.username);
+        if (user) { // check if user is in db
+            req.context.me = user;
+            next();
+        } else { // user not found in db
+            res.status(401);
+            res.send('Authentication failed, user does not exist');
+        }
+    } else if (!production) { // if not in production, and user isn't defined, mock user as admin
+        req.context.me = await models.User.findByLogin('admin');
+        next();
+    } else { // no session token or username not in session token
+        res.status(401);
+        res.send('Access denied: not authenticated')        
+    }
 });
 
 
@@ -41,10 +70,10 @@ app.get('/', (req, res) => {
     return res.send('Hello world!');
 });
 
-// app.use('/session', routes.session);
 app.use('/user', routes.user);
 app.use('/category', routes.category);
 app.use('/auth', routes.auth);
+app.use('/session', routes.session);
 
 app.use((error, req, res, next) => {
     return res.status(500).json({ error: error.toString() });

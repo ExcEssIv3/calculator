@@ -16,7 +16,6 @@ router.get('/', async (req, res, next) => {
 });
 
 router.get('/:categoryId', async (req, res, next) => {
-    console.log('GET');
     const categories = await req.context.models.Category.findOne({
         where: {
             [Op.and]: [
@@ -141,10 +140,6 @@ router.post('/contributor', async (req, res, next) => {
 
     return res.send(contributor);
 });
-
-// router.put('/contributor/:contributorId/totalOutput/:totalOutput', async (req, res, next) => {
-    
-// })
 
 router.delete('/contributor/:contributorId', async (req, res, next) => {
     const toDelete = await req.context.models.Contributor.findByPk(req.params.contributorId).catch(next);

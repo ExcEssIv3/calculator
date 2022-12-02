@@ -19,7 +19,7 @@ const getUserModel = (sequelize, { DataTypes }) => {
                 isEmail: true
             }
         },
-        hash: {
+        hash: { // hashed password
             type: DataTypes.STRING,
             allowNull: false,
             set(password) {
@@ -27,7 +27,7 @@ const getUserModel = (sequelize, { DataTypes }) => {
                 this.setDataValue('hash', crypto.pbkdf2Sync(password, this.salt, 1000, 64, 'sha512').toString('hex'));
             }
         },
-        salt: {
+        salt: { // hash for password
             type: DataTypes.STRING,
         }
         
