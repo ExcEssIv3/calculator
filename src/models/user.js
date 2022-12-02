@@ -1,5 +1,4 @@
-// let crypto = require('crypto');
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 const getUserModel = (sequelize, { DataTypes }) => {
     const User = sequelize.define('user', {
