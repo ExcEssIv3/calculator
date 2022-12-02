@@ -17,11 +17,11 @@ const getCategoryModel = (sequelize, { DataTypes }) => {
                 max: 3,
             },
         },
-        direction: { // 1: upstream, 2: reporting, 3: downstream
+        direction: {
             type: DataTypes.ENUM('Upstream', 'Reporting', 'Downstream'),
             allowNull: false,
         },
-        type: { // 0: direct, 1: indirect
+        type: {
             type: DataTypes.ENUM('Direct', 'Indirect'),
             allowNull: false,
         },

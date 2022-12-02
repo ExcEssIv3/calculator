@@ -17,7 +17,6 @@ router.post('/login', async (req, res) => {
             req.session.loggedin = true;
             req.session.username = username;
 
-            // res.redirect('/home'); // not sure if this will work with a real website
             return res.send('Authenticated');
         } else {
             res.status(401);
