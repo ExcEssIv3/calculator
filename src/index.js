@@ -8,7 +8,6 @@ import routes from './routes/index.js';
 import session from 'express-session';
 
 const app = express();
-const eraseDatabaseOnSync = true;
 
 app.use(cors());
 
@@ -93,8 +92,8 @@ app.get('/totalOutput', async (req, res, next) => {
     return res.send({ total: (sum === null) ? 0 : sum });
 });
 
-sequelize.sync({ force: eraseDatabaseOnSync }).then(() => {
-    if (eraseDatabaseOnSync) {
+sequelize.sync({ force: (process.env.ERASE_ON_RESET === 'true') }).then(() => {
+    if (process.env.ERASE_ON_RESET === 'true') {
         seedDb();
     }
     app.listen(process.env.PORT, () => {
