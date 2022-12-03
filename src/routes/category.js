@@ -153,6 +153,36 @@ router.post('/', async (req, res, next) => {
     return res.send(category);
 });
 
+router.put('/:categoryId', async (req,res, next) => {
+    const exists = await req.context.models.Category.findOne({
+        where: {
+            [Op.and]: [
+                { userId: req.context.me.id },
+                { id: req.params.categoryId }
+            ]   
+        }
+    });
+
+    if (!exists) {
+        res.status(404);
+        return res.send(`Category with id: ${req.params.categoryId} not found.`);
+    }
+
+    const category = await req.context.models.Category.update({
+        name: req.body.name,
+        scope: req.body.scope,
+        direction: req.body.direction,
+        type: req.body.type,
+    },
+    {
+        where: {
+            id: req.params.categoryId
+        }
+    }).catch(next);
+
+    return res.send(await req.context.models.Category.findByPk(req.params.categoryId));
+});
+
 router.delete('/:categoryId', async (req, res, next) => {
     const toDelete = await req.context.models.Category.findByPk(req.params.categoryId).catch(next);
 
@@ -178,6 +208,34 @@ router.post('/contributor', async (req, res, next) => {
     }).catch(next);
 
     return res.send(contributor);
+});
+
+router.put('/contributor/:contributorId', async (req,res, next) => {
+    const exists = await req.context.models.Contributor.findOne({
+        where: {
+            [Op.and]: [
+                { userId: req.context.me.id },
+                { id: req.params.contributorId }
+            ]   
+        }
+    });
+
+    if (!exists) {
+        res.status(404);
+        return res.send(`Contributor with id: ${req.params.contributorId} not found.`);
+    }
+
+    const contributor = await req.context.models.Contributor.update({
+        name: req.body.name,
+        carbonProduction: req.body.carbonProduction,
+    },
+    {
+        where: {
+            id: req.params.contributorId
+        }
+    }).catch(next);
+
+    return res.send(await req.context.models.Contributor.findByPk(req.params.contributorId));
 });
 
 router.delete('/contributor/:contributorId', async (req, res, next) => {
