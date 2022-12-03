@@ -2,18 +2,18 @@ import { Router } from 'express';
 
 const router = Router();
 
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res, next) => {
     let username = req.body.username;
     let password = req.body.password;
 
     if (username && password) {
-        const user = await req.context.models.User.findByLogin(username);
+        const user = await req.context.models.User.findByLogin(username).catch(next);
 
         if (!user) {
             res.status(404);
             return res.send('User does not exist');
         }
-        if (await req.context.models.User.validatePassword(user.dataValues.id, password)) {
+        if (await req.context.models.User.validatePassword(user.dataValues.id, password).catch(next)) {
             req.session.loggedin = true;
             req.session.username = username;
 
@@ -24,7 +24,7 @@ router.post('/login', async (req, res) => {
         }
     }
 
-    res.status(404);
+    res.status(400);
     return res.send('Username or password field is empty');
 });
 
