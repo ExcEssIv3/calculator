@@ -210,6 +210,34 @@ router.post('/contributor', async (req, res, next) => {
     return res.send(contributor);
 });
 
+router.put('/contributor/:contributorId', async (req,res, next) => {
+    const exists = await req.context.models.Contributor.findOne({
+        where: {
+            [Op.and]: [
+                { userId: req.context.me.id },
+                { id: req.params.contributorId }
+            ]   
+        }
+    });
+
+    if (!exists) {
+        res.status(404);
+        return res.send(`Contributor with id: ${req.params.contributorId} not found.`);
+    }
+
+    const contributor = await req.context.models.Contributor.update({
+        name: req.body.name,
+        carbonProduction: req.body.carbonProduction,
+    },
+    {
+        where: {
+            id: req.params.contributorId
+        }
+    }).catch(next);
+
+    return res.send(await req.context.models.Contributor.findByPk(req.params.contributorId));
+});
+
 router.delete('/contributor/:contributorId', async (req, res, next) => {
     const toDelete = await req.context.models.Contributor.findByPk(req.params.contributorId).catch(next);
 
