@@ -10,7 +10,7 @@ router.post('/login', async (req, res) => {
         const user = await req.context.models.User.findByLogin(username);
 
         if (!user) {
-            res.status(400);
+            res.status(404);
             return res.send('User does not exist');
         }
         if (await req.context.models.User.validatePassword(user.dataValues.id, password)) {
@@ -24,7 +24,7 @@ router.post('/login', async (req, res) => {
         }
     }
 
-    res.status(400)
+    res.status(404);
     return res.send('Username or password field is empty');
 });
 
